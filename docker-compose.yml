@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: maps_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    networks:
+      - maps-network
+    ports:
+      - "9000:9000" # Esta linha mapeia a porta do PHP-FPM
+
+  webserver:
+    image: nginx:alpine
+    container_name: maps_webserver
+    restart: unless-stopped
+    ports:
+      - "0417:80"  # Aqui mapeia a porta 0417 do host para a porta 80 do container
+    volumes:
+      - .:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - maps-network
+
+  db:
+    image: mysql:5.7
+    container_name: maps_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: maps_db
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3304:3306"
+    networks:
+      - maps-network
+
+networks:
+  maps-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
