@@ -2,46 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TouristPoint;
-use Illuminate\Http\Request;
+use App\Actions\TouristPointAction;
+use App\Http\Requests\CreateTouristPointRequest;
+use App\Http\Requests\UpdateTouristPointRequest;
 
 class TouristPointController extends Controller
 {
-    public function index()
+    protected $touristPointAction;
+
+    public function __construct(TouristPointAction $touristPointAction)
     {
-        // Retorna todos os pontos turísticos no formato esperado pelo frontend
-        return response()->json([
-            'data' => TouristPoint::all()->map(function ($point) {
-                return [
-                    'uid' => $point->uid,
-                    'attributes' => [
-                        'createdAt' => $point->created_at,
-                        'author' => $point->author,
-                        'latitude' => $point->latitude,
-                        'longitude' => $point->longitude,
-                        'descricao' => $point->descricao,
-                        'updatedAt' => $point->updated_at,
-                    ],
-                ];
-            }),
-        ]);
+        $this->touristPointAction = $touristPointAction;
     }
 
-    public function store(Request $request)
+    public function store(CreateTouristPointRequest $request)
     {
-        // Validação básica
-        $request->validate([
-            'uid' => 'required|unique:tourist_points,uid',
-            'latitude' => 'required',
-            'longitude' => 'required',
-            'descricao' => 'required',
-        ]);
-
-        // Criação do ponto turístico
-        $touristPoint = TouristPoint::create($request->all());
-
+        $touristPoint = $this->touristPointAction->create($request->validated());
         return response()->json($touristPoint, 201);
     }
 
-    // Outros métodos como update, delete, show, etc., podem ser adicionados conforme necessário
+    public function index()
+    {
+        $touristPoints = $this->touristPointAction->list();
+        return response()->json($touristPoints);
+    }
+
+    public function show($uid)
+    {
+        $touristPoint = $this->touristPointAction->get($uid);
+        return response()->json($touristPoint);
+    }
+
+    public function update(UpdateTouristPointRequest $request, $uid)
+    {
+        $touristPoint = $this->touristPointAction->update($uid, $request->validated());
+        return response()->json($touristPoint);
+    }
+
+    public function destroy($uid)
+    {
+        $this->touristPointAction->delete($uid);
+        return response()->json(['message' => 'Ponto turístico deletado com sucesso.'], 200);
+    }
 }
