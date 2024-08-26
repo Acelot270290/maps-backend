@@ -16,5 +16,6 @@ Route::prefix('v1')->group(function () {
     // Outras rotas que você quiser adicionar
     Route::get('/tourist-points', [TouristPointController::class, 'index']);
     Route::post('/tourist-points', [TouristPointController::class, 'store']);
+    Route::delete('/tourist-points/{uid}', [TouristPointController::class, 'destroy']);
    
 });

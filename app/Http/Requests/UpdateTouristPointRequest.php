@@ -14,7 +14,7 @@ class UpdateTouristPointRequest extends FormRequest
     public function rules()
     {
         return [
-            'author' => 'sometimes|string|max:255',
+            'author' => 'string|max:255',
             'latitude' => 'sometimes|numeric',
             'longitude' => 'sometimes|numeric',
             'descricao' => 'sometimes|string|max:1000',
